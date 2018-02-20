@@ -12,6 +12,8 @@ class TimeSpan;
 #define PCF8523_CLKOUTCONTROL 0x0F
 #define PCF8523_CONTROL_3     0x02
 
+#define RV1805_ADDRESS       0xD2
+
 #define DS1307_ADDRESS  0x68
 #define DS1307_CONTROL  0x07
 #define DS1307_NVRAM    0x08
@@ -118,6 +120,16 @@ public:
 
     Pcf8523SqwPinMode readSqwPinMode();
     void writeSqwPinMode(Pcf8523SqwPinMode mode);
+};
+
+
+// RTC based on the RV1805-C3 chip connected via I2C and the wire library
+class RTC_RV1805 {
+public:
+    boolean begin(void);
+    void adjust(const DateTime& dt);
+    boolean initialized(void);
+    static DateTime now();
 };
 
 // RTC using the internal millis() clock, has to be initialized before use

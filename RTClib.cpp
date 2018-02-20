@@ -429,6 +429,53 @@ void RTC_PCF8523::writeSqwPinMode(Pcf8523SqwPinMode mode) {
 
 
 ////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+// RTC_RV1805 implementation
+
+uint8_t bin2rv (uint8_t in){
+  return  ((in / 10) << 4) + (in % 10);
+}
+
+uint8_t rv2bin (uint8_t in){
+  return 10 * ((in & 0xF0) >> 4) + (in & 0x0F);
+}
+
+boolean RTC_RV1805::begin(void) {
+  Wire.begin();
+  return true;
+}
+
+boolean RTC_RV1805::initialized(void) {
+// check if clock is running
+  return true;
+}
+
+void RTC_RV1805::adjust(const DateTime& dt) {
+  Wire.beginTransmission(RV1805_ADDRESS);
+  Wire._I2C_WRITE((byte)1); // start at location 3
+  Wire._I2C_WRITE(bin2bcd(dt.second()));
+  Wire._I2C_WRITE(bin2bcd(dt.minute()));
+  Wire._I2C_WRITE(bin2bcd(dt.hour()));
+  Wire._I2C_WRITE(bin2bcd(dt.day()));
+  Wire._I2C_WRITE(bin2bcd(dt.month()));
+  Wire._I2C_WRITE(bin2bcd(dt.year() - 2000));
+  Wire.endTransmission();
+}
+
+DateTime RTC_RV1805::now() {
+  uint8_t ss = rv2bin(read_i2c_register(RV1805_ADDRESS, 1) & 0x7F);
+  uint8_t mm = rv2bin(read_i2c_register(RV1805_ADDRESS, 2) & 0x7F);
+  uint8_t hh = rv2bin(read_i2c_register(RV1805_ADDRESS, 3) & 0x3F);
+  uint8_t d = rv2bin(read_i2c_register(RV1805_ADDRESS, 4) & 0x3F);
+  uint8_t m = rv2bin(read_i2c_register(RV1805_ADDRESS, 5) & 0x1F);
+  uint16_t y = rv2bin(read_i2c_register(RV1805_ADDRESS, 6));
+  
+  return DateTime (y, m, d, hh, mm, ss);
+}
+
+
+////////////////////////////////////////////////////////////////////////////////
 // RTC_DS3231 implementation
 
 boolean RTC_DS3231::begin(void) {
