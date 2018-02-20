@@ -12,7 +12,7 @@ class TimeSpan;
 #define PCF8523_CLKOUTCONTROL 0x0F
 #define PCF8523_CONTROL_3     0x02
 
-#define RV1805_ADDRESS       0xD2
+#define RV1805_ADDRESS       105
 
 #define DS1307_ADDRESS  0x68
 #define DS1307_CONTROL  0x07

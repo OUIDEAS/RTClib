@@ -464,12 +464,12 @@ void RTC_RV1805::adjust(const DateTime& dt) {
 }
 
 DateTime RTC_RV1805::now() {
-  uint8_t ss = rv2bin(read_i2c_register(RV1805_ADDRESS, 1) & 0x7F);
-  uint8_t mm = rv2bin(read_i2c_register(RV1805_ADDRESS, 2) & 0x7F);
-  uint8_t hh = rv2bin(read_i2c_register(RV1805_ADDRESS, 3) & 0x3F);
-  uint8_t d = rv2bin(read_i2c_register(RV1805_ADDRESS, 4) & 0x3F);
-  uint8_t m = rv2bin(read_i2c_register(RV1805_ADDRESS, 5) & 0x1F);
-  uint16_t y = rv2bin(read_i2c_register(RV1805_ADDRESS, 6));
+  uint8_t ss = rv2bin(read_i2c_register(RV1805_ADDRESS, 0x01) & 0x7F);
+  uint8_t mm = rv2bin(read_i2c_register(RV1805_ADDRESS, 0x02) & 0x7F);
+  uint8_t hh = rv2bin(read_i2c_register(RV1805_ADDRESS, 0x03) & 0x3F);
+  uint8_t d = rv2bin(read_i2c_register(RV1805_ADDRESS, 0x04) & 0x3F);
+  uint8_t m = rv2bin(read_i2c_register(RV1805_ADDRESS, 0x05) & 0x1F);
+  uint16_t y = rv2bin(read_i2c_register(RV1805_ADDRESS, 0x06));
   
   return DateTime (y, m, d, hh, mm, ss);
 }
