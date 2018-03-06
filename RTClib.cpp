@@ -483,6 +483,7 @@ void RTC_RV1805::setTimer(uint8_t time){
   write_i2c_register(RV1805_ADDRESS, 0x11, (B11011100 & CLKS));
   uint8_t TIE = read_i2c_register(RV1805_ADDRESS, 0x12);
   write_i2c_register(RV1805_ADDRESS, 0x12, B11111110 & (B10001000 | TIE));
+  startTimer();
 }
 
 uint8_t RTC_RV1805::getTimer(){
