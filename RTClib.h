@@ -130,6 +130,10 @@ public:
     void adjust(const DateTime& dt);
     boolean initialized(void);
     static DateTime now();
+    void setTimer(uint8_t time);
+    uint8_t getTimer();
+    void startTimer();
+    void stopTimer();
 };
 
 // RTC using the internal millis() clock, has to be initialized before use

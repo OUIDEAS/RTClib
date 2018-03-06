@@ -474,6 +474,31 @@ DateTime RTC_RV1805::now() {
   return DateTime (y, m, d, hh, mm, ss);
 }
 
+void RTC_RV1805::setTimer(uint8_t time){
+  stopTimer();
+  write_i2c_register(RV1805_ADDRESS, 0x19, time);
+  uint8_t originalTimerControl = read_i2c_register(RV1805_ADDRESS, 0x18);
+  write_i2c_register(RV1805_ADDRESS, 0x18, B01000010 | (B0101110 & originalTimerControl));
+  uint8_t CLKS = read_i2c_register(RV1805_ADDRESS, 0x11);
+  write_i2c_register(RV1805_ADDRESS, 0x11, (B11011100 & CLKS));
+  uint8_t TIE = read_i2c_register(RV1805_ADDRESS, 0x12);
+  write_i2c_register(RV1805_ADDRESS, 0x12, B11111110 & (B10001000 | TIE));
+}
+
+uint8_t RTC_RV1805::getTimer(){
+  return read_i2c_register(RV1805_ADDRESS, 0x19);
+}
+
+void RTC_RV1805::startTimer(){
+  uint8_t originalTimerControl = read_i2c_register(RV1805_ADDRESS, 0x18);
+  write_i2c_register(RV1805_ADDRESS, 0x18, (B10000000 | originalTimerControl));
+}
+
+void RTC_RV1805::stopTimer(){
+  uint8_t originalTimerControl = read_i2c_register(RV1805_ADDRESS, 0x18);
+  write_i2c_register(RV1805_ADDRESS, 0x18, (B0111111 & originalTimerControl));
+}
+
 
 ////////////////////////////////////////////////////////////////////////////////
 // RTC_DS3231 implementation
