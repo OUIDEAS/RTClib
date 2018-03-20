@@ -474,11 +474,28 @@ DateTime RTC_RV1805::now() {
   return DateTime (y, m, d, hh, mm, ss);
 }
 
-void RTC_RV1805::setTimer(uint8_t time){
+//mode=0 => 1/4096 seconds per tick
+//mode=1 => 1/64 seconds per tick
+//mode=2 => 1 second per tick
+//mode=3 => 1/60 sedconds per tick
+void RTC_RV1805::setTimer(uint8_t time, int mode){
   stopTimer();
   write_i2c_register(RV1805_ADDRESS, 0x19, time);
   uint8_t originalTimerControl = read_i2c_register(RV1805_ADDRESS, 0x18);
-  write_i2c_register(RV1805_ADDRESS, 0x18, B01000010 | (B0101110 & originalTimerControl));
+  uint8_t newTimerControl = B01000000 | (B0101100 & originalTimerControl);
+  if(mode == 3){
+    newTimerControl = newTimerControl | B00000011;
+  } else if(mode == 2){
+    newTimerControl = newTimerControl | B00000010;
+  }else if(mode == 1){
+    newTimerControl = newTimerControl | B00000001;
+  }else if(mode == 0){
+    //handled by default values
+  }else{
+    // bad mode 
+    return;
+  }
+  write_i2c_register(RV1805_ADDRESS, 0x18, newTimerControl);
   uint8_t CLKS = read_i2c_register(RV1805_ADDRESS, 0x11);
   write_i2c_register(RV1805_ADDRESS, 0x11, (B11011100 & CLKS));
   uint8_t TIE = read_i2c_register(RV1805_ADDRESS, 0x12);
@@ -500,6 +517,42 @@ void RTC_RV1805::stopTimer(){
   write_i2c_register(RV1805_ADDRESS, 0x18, (B0111111 & originalTimerControl));
 }
 
+void RTC_RV1805::enableAlarm(){
+  uint8_t originalInteruptMask = read_i2c_register(RV1805_ADDRESS, 0x12);
+  write_i2c_register(RV1805_ADDRESS, 0x12, (B00000100 | originalInteruptMask));
+  uint8_t originalARPT = read_i2c_register(RV1805_ADDRESS, 0x18);
+  write_i2c_register(RV1805_ADDRESS, 0x18, (B00000001 | originalARPT));
+}
+
+void RTC_RV1805::disableAlarm(){
+  uint8_t originalInteruptMask = read_i2c_register(RV1805_ADDRESS, 0x12);
+  write_i2c_register(RV1805_ADDRESS, 0x18, (B11111011 & originalInteruptMask));
+  uint8_t originalARPT = read_i2c_register(RV1805_ADDRESS, 0x18);
+  write_i2c_register(RV1805_ADDRESS, 0x18, (B11111000 & originalARPT));
+}
+
+void RTC_RV1805::setAlarm(const DateTime& alarmTime) {
+  Wire.beginTransmission(RV1805_ADDRESS);
+  Wire._I2C_WRITE((byte)9); // start at location 9
+  Wire._I2C_WRITE(bin2bcd(alarmTime.second()));
+  Wire._I2C_WRITE(bin2bcd(alarmTime.minute()));
+  Wire._I2C_WRITE(bin2bcd(alarmTime.hour()));
+  Wire._I2C_WRITE(bin2bcd(alarmTime.day()));
+  Wire._I2C_WRITE(bin2bcd(alarmTime.month()));
+  Wire._I2C_WRITE(bin2bcd(alarmTime.year() - 2000));
+  Wire.endTransmission();
+}
+
+DateTime RTC_RV1805::getAlarm() {
+  uint8_t ss = rv2bin(read_i2c_register(RV1805_ADDRESS, 0x09) & 0x7F);
+  uint8_t mm = rv2bin(read_i2c_register(RV1805_ADDRESS, 0x0A) & 0x7F);
+  uint8_t hh = rv2bin(read_i2c_register(RV1805_ADDRESS, 0x0B) & 0x3F);
+  uint8_t d = rv2bin(read_i2c_register(RV1805_ADDRESS, 0x0C) & 0x3F);
+  uint8_t m = rv2bin(read_i2c_register(RV1805_ADDRESS, 0x0D) & 0x1F);
+  uint16_t y = rv2bin(read_i2c_register(RV1805_ADDRESS, 0x0E));
+  
+  return DateTime (y, m, d, hh, mm, ss);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 // RTC_DS3231 implementation

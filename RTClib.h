@@ -130,10 +130,14 @@ public:
     void adjust(const DateTime& dt);
     boolean initialized(void);
     static DateTime now();
-    void setTimer(uint8_t time);
+    void setTimer(uint8_t time, int mode);
     uint8_t getTimer();
     void startTimer();
     void stopTimer();
+    void enableAlarm();
+    void disableAlarm();
+    void setAlarm(const DateTime& alarmTime);
+    DateTime getAlarm();
 };
 
 // RTC using the internal millis() clock, has to be initialized before use
