@@ -138,6 +138,7 @@ public:
     void disableAlarm();
     void setAlarm(const DateTime& alarmTime);
     DateTime getAlarm();
+    void sleep(TimeSpan time);
 };
 
 // RTC using the internal millis() clock, has to be initialized before use

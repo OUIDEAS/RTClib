@@ -54,7 +54,6 @@ void setup () {
   while (!Serial) {
     delay(1);  // for Leonardo/Micro/Zero
   }
-
   Serial.begin(57600);
   if (! rtc.begin()) {
     Serial.println("Couldn't find RTC");
@@ -63,20 +62,17 @@ void setup () {
   
   rtc.adjust(DateTime(F(__DATE__), F(__TIME__)));
   
-  rtc.setTimer(3, 2);
+  rtc.setTimer(3, 1);
 
   rtc.enableAlarm();
-  DateTime alarm = rtc.now() + TimeSpan(0, 0, 0, 10);
-  rtc.setAlarm(alarm);
-
+//  DateTime alarm = rtc.now() + TimeSpan(0, 0, 0, 10);
+//  rtc.setAlarm(alarm);
+  rtc.sleep(TimeSpan(0, 0, 0, 10));
   attachInterrupt(digitalPinToInterrupt(7), RTCISR, LOW);
 }
 
 void loop () {
   //  Serial.println(rtc.getTimer());
   delay(1000);
-  //  if (rtc.getTimer() < 8) {
-  //    rtc.stopTimer();
-  //  }
+  Serial.println(rtc.getTimer());
 }
-

@@ -554,6 +554,12 @@ DateTime RTC_RV1805::getAlarm() {
   return DateTime (y, m, d, hh, mm, ss);
 }
 
+void RTC_RV1805::sleep(TimeSpan time){
+  setAlarm(now() + time);
+  write_i2c_register(RV1805_ADDRESS, 0x18, B11000000); //puts rtc to sleep
+}
+
+
 ////////////////////////////////////////////////////////////////////////////////
 // RTC_DS3231 implementation
 
